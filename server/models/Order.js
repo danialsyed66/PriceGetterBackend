@@ -102,6 +102,6 @@ const Schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Model = mongoose.model('Order', Schema);
+const model = mongoose.model('Order', Schema);
 
-module.exports = Model;
+module.exports = model;

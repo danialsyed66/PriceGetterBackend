@@ -10,6 +10,6 @@ const schema = mongoose.Schema({
   htmls: [{ html1: String, html: String }],
 });
 
-const Model = mongoose.model('Log', schema);
+const model = mongoose.model('Log', schema);
 
-module.exports = Model;
+module.exports = model;

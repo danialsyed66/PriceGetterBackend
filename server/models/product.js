@@ -98,6 +98,6 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Model = mongoose.model('Product', schema);
+const model = mongoose.model('Product', schema);
 
-module.exports = Model;
+module.exports = model;

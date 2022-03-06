@@ -56,6 +56,6 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Model = mongoose.model('Post', schema);
+const model = mongoose.model('Post', schema);
 
-module.exports = Model;
+module.exports = model;
