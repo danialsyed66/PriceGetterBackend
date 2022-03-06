@@ -13,11 +13,11 @@ const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
 const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRouter');
-const productRouter = require('./routes/productRouter');
-const orderRouter = require('./routes/orderRouter');
-const paymentRouter = require('./routes/paymentRouter');
-const postRouter = require('./routes/postRouter');
-const sellerRouter = require('./routes/sellerRouter');
+// const productRouter = require('./routes/productRouter');
+// const orderRouter = require('./routes/orderRouter');
+// const paymentRouter = require('./routes/paymentRouter');
+// const postRouter = require('./routes/postRouter');
+// const sellerRouter = require('./routes/sellerRouter');
 
 require('./passport')(passport);
 
@@ -56,11 +56,11 @@ app.use(passport.session());
 
 app.use('/auth', authRouter);
 app.use('/api/v1', userRouter);
-app.use('/api/v1/products', productRouter);
-app.use('/api/v1/orders', orderRouter);
-app.use('/api/v1/payment', paymentRouter);
-app.use('/api/v1/posts', postRouter);
-app.use('/api/v1/seller', sellerRouter);
+// app.use('/api/v1/products', productRouter);
+// app.use('/api/v1/orders', orderRouter);
+// app.use('/api/v1/payment', paymentRouter);
+// app.use('/api/v1/posts', postRouter);
+// app.use('/api/v1/seller', sellerRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Given route ${req.originalUrl} doesnot exist`, 404));
