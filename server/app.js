@@ -9,8 +9,8 @@ const passport = require('passport');
 // Social Login
 const cookieSession = require('cookie-session');
 
-const errorController = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
+const errorController = require('./controllers/errorController');
 const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRouter');
 const productRouter = require('./routes/productRouter');
