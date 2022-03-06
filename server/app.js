@@ -9,7 +9,7 @@ const passport = require('passport');
 // Social Login
 const cookieSession = require('cookie-session');
 
-const AppError = require('./utils/AppError');
+const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
 const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRouter');
