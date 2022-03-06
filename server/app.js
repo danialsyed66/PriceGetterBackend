@@ -60,7 +60,7 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1/posts', postRouter);
-// app.use('/api/v1/seller', sellerRouter);
+app.use('/api/v1/seller', sellerRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Given route ${req.originalUrl} doesnot exist`, 404));

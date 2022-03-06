@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-// const Seller = require('../models/seller');
+const Seller = require('../models/seller');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryController');
 
@@ -123,59 +123,59 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.getHomePage = catchAsync(async (req, res, next) => {
-//   const { _id: darazId } = await Seller.findOne({ name: 'Daraz' });
-//   const { _id: yayvoId } = await Seller.findOne({ name: 'Yayvo' });
-//   // const { _id: gotoId } = await Seller.findOne({ name: 'Goto' });
+exports.getHomePage = catchAsync(async (req, res, next) => {
+  const { _id: darazId } = await Seller.findOne({ name: 'Daraz' });
+  const { _id: yayvoId } = await Seller.findOne({ name: 'Yayvo' });
+  // const { _id: gotoId } = await Seller.findOne({ name: 'Goto' });
 
-//   const getData = async where => {
-//     const { data } = await factory.getAll(Product, { where }, false)(
-//       req,
-//       res,
-//       next
-//     );
+  const getData = async where => {
+    const { data } = await factory.getAll(Product, { where }, false)(
+      req,
+      res,
+      next
+    );
 
-//     return data;
-//   };
+    return data;
+  };
 
-//   const daraz = await getData({ seller: darazId });
-//   const yayvo = await getData({ seller: yayvoId });
-//   // const goto = await getData({ seller: gotoId });
+  const daraz = await getData({ seller: darazId });
+  const yayvo = await getData({ seller: yayvoId });
+  // const goto = await getData({ seller: gotoId });
 
-//   const accessories = await getData({ ['category.search']: 'Accessories' });
-//   const books = await getData({ ['category.search']: 'Books' });
-//   const cameras = await getData({ ['category.search']: 'Cameras' });
-//   const clothes = await getData({ ['category.search']: 'Clothes' });
-//   const electronics = await getData({ ['category.search']: 'Electronics' });
-//   const food = await getData({ ['category.search']: 'Food' });
-//   const headphones = await getData({ ['category.search']: 'Headphones' });
-//   const home = await getData({ ['category.search']: 'Home' });
-//   const laptops = await getData({ ['category.search']: 'Laptops' });
-//   const outdoor = await getData({ ['category.search']: 'Outdoor' });
-//   const smartPhones = await getData({ ['category.search']: 'Smart Phones' });
-//   const sports = await getData({ ['category.search']: 'Sports' });
+  const accessories = await getData({ ['category.search']: 'Accessories' });
+  const books = await getData({ ['category.search']: 'Books' });
+  const cameras = await getData({ ['category.search']: 'Cameras' });
+  const clothes = await getData({ ['category.search']: 'Clothes' });
+  const electronics = await getData({ ['category.search']: 'Electronics' });
+  const food = await getData({ ['category.search']: 'Food' });
+  const headphones = await getData({ ['category.search']: 'Headphones' });
+  const home = await getData({ ['category.search']: 'Home' });
+  const laptops = await getData({ ['category.search']: 'Laptops' });
+  const outdoor = await getData({ ['category.search']: 'Outdoor' });
+  const smartPhones = await getData({ ['category.search']: 'Smart Phones' });
+  const sports = await getData({ ['category.search']: 'Sports' });
 
-//   res.status(200).json({
-//     data: {
-//       sellers: {
-//         daraz,
-//         yayvo,
-//         // goto,
-//       },
-//       categories: {
-//         accessories,
-//         books,
-//         cameras,
-//         clothes,
-//         electronics,
-//         food,
-//         headphones,
-//         home,
-//         laptops,
-//         outdoor,
-//         smartPhones,
-//         sports,
-//       },
-//     },
-//   });
-// });
+  res.status(200).json({
+    data: {
+      sellers: {
+        daraz,
+        yayvo,
+        // goto,
+      },
+      categories: {
+        accessories,
+        books,
+        cameras,
+        clothes,
+        electronics,
+        food,
+        headphones,
+        home,
+        laptops,
+        outdoor,
+        smartPhones,
+        sports,
+      },
+    },
+  });
+});
