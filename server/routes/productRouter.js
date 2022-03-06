@@ -15,7 +15,7 @@ const {
 const { auth, authTo } = require('../controllers/authController');
 
 router.route('/').get(getProducts);
-router.route('/getHomePage').get(getHomePage);
+// router.route('/getHomePage').get(getHomePage);
 
 router.route('/create').post(auth, authTo('admin', 'seller'), createProduct);
 
