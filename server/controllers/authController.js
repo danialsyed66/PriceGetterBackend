@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const cloudinary = require('cloudinary');
 
 const User = require('../models/User');
-const AppError = require('../utils/appError');
+const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const sendToken = require('../utils/sendToken');
 const sendEmail = require('../utils/sendEmail');
