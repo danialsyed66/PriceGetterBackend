@@ -1,7 +1,7 @@
 const cloudinary = require('cloudinary');
 
-const Seller = require('../models/Seller');
-const Product = require('../models/Product');
+const Seller = require('../models/seller');
+const Product = require('../models/product');
 const catchAsync = require('../utils/catchAsync');
 
 exports.createSeller = catchAsync(async (req, res, next) => {
