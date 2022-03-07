@@ -8,7 +8,7 @@ module.exports = passport => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/auth/google/callback',
+        callbackURL: '/api/v1/auth/google/callback',
       },
       (_, __, profile, done) => {
         done(null, profile);
@@ -21,7 +21,7 @@ module.exports = passport => {
       {
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-        callbackURL: '/auth/facebook/callback',
+        callbackURL: '/api/v1/auth/facebook/callback',
       },
       (_, __, profile, done) => {
         done(null, profile);
@@ -29,18 +29,18 @@ module.exports = passport => {
     )
   );
 
-  // passport.use(
-  //   new twitterStrategy(
-  //     {
-  //       clientID: process.env.TWITTER_CLIENT_ID,
-  //       clientSecret: process.env.TWITTER_CLIENT_SECRET,
-  //       callbackURL: '/auth/twitter/callback',
-  //     },
-  //     (_, __, profile, done) => {
-  //       done(null, profile);
-  //     }
-  //   )
-  // );
+  passport.use(
+    new twitterStrategy(
+      {
+        consumerKey: process.env.TWITTER_CLIENT_ID,
+        clientSecret: process.env.TWITTER_CLIENT_SECRET,
+        consumerSecret: '/api/v1/auth/twitter/callback',
+      },
+      (_, __, profile, done) => {
+        done(null, profile);
+      }
+    )
+  );
 
   passport.serializeUser((user, done) => {
     done(null, user);
