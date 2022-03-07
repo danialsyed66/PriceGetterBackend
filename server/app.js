@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -23,6 +24,7 @@ require('./passport')(passport);
 
 const app = express();
 
+app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
 app.use(mongoSanitize());
