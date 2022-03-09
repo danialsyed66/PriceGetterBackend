@@ -67,9 +67,11 @@ exports.logout = (req, res, next) => {
 };
 
 exports.auth = catchAsync(async (req, res, next) => {
-  if (!req.cookies) return next(new AppError('You are not logged in.', 400));
+  // if (!req.cookies) return next(new AppError('You are not logged in.', 400));
+  if (!req.headers) return next(new AppError('You are not logged in.', 400));
 
-  const { token } = req.cookies;
+  // const { token } = req.cookies;
+  const { token } = req.headers;
 
   if (!token) return next(new AppError('You are not logged in.', 401));
 
