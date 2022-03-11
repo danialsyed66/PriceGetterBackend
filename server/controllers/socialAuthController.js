@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const sendToken = require('../utils/sendToken');
 
 exports.success = (req, res) => {
-  console.log('success', 'u', eq.user);
+  console.log('success', 'u', req.user);
   console.log('success', 'h', req.headers);
 
   if (req.user) {
