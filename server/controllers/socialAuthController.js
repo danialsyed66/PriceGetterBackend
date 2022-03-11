@@ -5,7 +5,6 @@ const sendToken = require('../utils/sendToken');
 
 exports.success = (req, res) => {
   console.log('success', 'u', req.user);
-  console.log('success', 'h', req.headers);
 
   if (req.user) {
     res.status(200).json({
