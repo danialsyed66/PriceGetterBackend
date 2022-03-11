@@ -3,26 +3,16 @@ const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 const sendToken = require('../utils/sendToken');
 
-exports.google = catchAsync((req, res, next) => {});
-
 exports.success = (req, res) => {
+  console.log('success', 'u', eq.user);
+  console.log('success', 'h', req.headers);
+
   if (req.user) {
-    res
-      .status(200)
-      .cookie('session', null, {
-        expires: new Date(Date.now()),
-        httpOnly: true,
-      })
-      .cookie('session.sig', null, {
-        expires: new Date(Date.now()),
-        httpOnly: true,
-      })
-      .json({
-        success: true,
-        message: 'successfull',
-        user: req.user,
-        //   cookies: req.cookies
-      });
+    res.status(200).json({
+      success: true,
+      message: 'successfull',
+      user: req.user,
+    });
   }
 };
 
@@ -35,11 +25,12 @@ exports.failed = (req, res) => {
 
 exports.logout = (req, res) => {
   req.logout();
-  res.redirect(CLIENT_URL);
+  res.redirect(process.env.CLIENT_URL);
 };
 
 exports.saveUser = catchAsync(async (req, res, next) => {
   const { name, email, avatar, provider, socialId } = req.body;
+  console.log('save', req.body);
 
   let user = await User.findOne({ email });
 
