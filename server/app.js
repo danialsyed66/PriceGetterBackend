@@ -19,8 +19,9 @@ const orderRouter = require('./routes/orderRouter');
 const paymentRouter = require('./routes/paymentRouter');
 const postRouter = require('./routes/postRouter');
 const sellerRouter = require('./routes/sellerRouter');
+const { user } = require('./server');
 
-require('./passport')(passport);
+require('./passport')(passport, user);
 
 const app = express();
 

@@ -4,6 +4,8 @@ const cloudinary = require('cloudinary');
 
 dotenv.config({ path: 'server/config.env' });
 
+exports.user = undefined;
+
 const app = require('./app');
 
 process.on('uncaughtException', err => {

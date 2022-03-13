@@ -2,15 +2,14 @@ const AppError = require('../utils/appError');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 const sendToken = require('../utils/sendToken');
+const { user } = require('../server');
 
 exports.success = (req, res) => {
-  console.log('success', 'u', req.user);
-
-  if (req.user) {
+  if (user) {
     res.status(200).json({
       success: true,
       message: 'successfull',
-      user: req.user,
+      user: user,
     });
   }
 };

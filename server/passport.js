@@ -2,7 +2,7 @@ const googleStrategy = require('passport-google-oauth20').Strategy;
 const facebookStrategy = require('passport-facebook').Strategy;
 const twitterStrategy = require('passport-twitter').Strategy;
 
-module.exports = passport => {
+module.exports = (passport, user) => {
   passport.use(
     new googleStrategy(
       {
@@ -11,7 +11,7 @@ module.exports = passport => {
         callbackURL: '/api/v1/auth/google/callback',
       },
       (_, __, profile, done) => {
-        console.log('stg', profile);
+        user = { ...profile };
 
         done(null, profile);
       }
@@ -26,6 +26,8 @@ module.exports = passport => {
         callbackURL: '/api/v1/auth/facebook/callback',
       },
       (_, __, profile, done) => {
+        user = { ...profile };
+
         done(null, profile);
       }
     )
@@ -39,6 +41,8 @@ module.exports = passport => {
         consumerSecret: '/api/v1/auth/twitter/callback',
       },
       (_, __, profile, done) => {
+        user = { ...profile };
+
         done(null, profile);
       }
     )
