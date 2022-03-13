@@ -4,11 +4,14 @@ const router = require('express').Router();
 const {
   success,
   failed,
+  clear,
   logout,
   saveUser,
 } = require('../controllers/socialAuthController');
 
 router.get('/login/success', success);
+
+router.get('/login/clear', clear);
 
 router.get('/login/failed', failed);
 

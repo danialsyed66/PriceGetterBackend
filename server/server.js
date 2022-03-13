@@ -4,7 +4,7 @@ const cloudinary = require('cloudinary');
 
 dotenv.config({ path: 'server/config.env' });
 
-exports.user = undefined;
+global.socialUser = undefined;
 
 const app = require('./app');
 

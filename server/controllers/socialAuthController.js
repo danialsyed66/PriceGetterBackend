@@ -2,16 +2,24 @@ const AppError = require('../utils/appError');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 const sendToken = require('../utils/sendToken');
-const { user } = require('../server');
 
 exports.success = (req, res) => {
-  if (user) {
+  if (socialUser) {
     res.status(200).json({
       success: true,
       message: 'successfull',
-      user: user,
+      user: socialUser,
     });
   }
+};
+
+exports.clear = (req, res) => {
+  socialUser = undefined;
+
+  res.status(200).json({
+    success: true,
+    message: 'cleared',
+  });
 };
 
 exports.failed = (req, res) => {
