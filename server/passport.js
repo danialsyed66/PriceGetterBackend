@@ -37,8 +37,8 @@ module.exports = passport => {
     new twitterStrategy(
       {
         consumerKey: process.env.TWITTER_CLIENT_ID,
-        clientSecret: process.env.TWITTER_CLIENT_SECRET,
-        consumerSecret: '/api/v1/auth/twitter/callback',
+        consumerSecret: process.env.TWITTER_CLIENT_SECRET,
+        callbackURL: '/api/v1/auth/twitter/callback',
       },
       (_, __, profile, done) => {
         socialUser = { ...profile };
