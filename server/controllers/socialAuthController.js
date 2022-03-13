@@ -36,7 +36,6 @@ exports.logout = (req, res) => {
 
 exports.saveUser = catchAsync(async (req, res, next) => {
   const { name, email, avatar, provider, socialId } = req.body;
-  console.log('save', req.body);
 
   let user = await User.findOne({ email });
 

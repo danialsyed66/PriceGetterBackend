@@ -43,10 +43,7 @@ router.get(
   })
 );
 
-router.get(
-  '/twitter',
-  passport.authenticate('twitter', { scope: ['profile', 'email'] })
-);
+router.get('/twitter', passport.authenticate('twitter'));
 router.get(
   '/twitter/callback',
   passport.authenticate('twitter', {
