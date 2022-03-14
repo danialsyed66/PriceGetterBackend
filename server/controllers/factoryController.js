@@ -73,11 +73,19 @@ exports.getOne = (Model, populateOptions) =>
 
 exports.getAll = (Model, options = {}, sendRes = true) =>
   catchAsync(async (req, res, next) => {
-    const { getTotalDocs, getOrderAmount, populateOptions, where } = options;
+    const { getTotalDocs, getOrderAmount, populateOptions } = options;
+    const { price, category, seller } = req.query;
+
     const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
 
+    const where = options.where || {
+      price: { $gt: +price.gt, $lt: +price.lt },
+      ...(seller && { seller }),
+      ...(category && { ['category.search']: category }),
+    };
+
     // Creating a query
-    const apiFeatures = new ApiFeatures(Model.find(where), req.query)
+    let apiFeatures = new ApiFeatures(Model.find(where), req.query)
       .search()
       .sort()
       .limitFields()
@@ -89,7 +97,12 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
     const docs = await apiFeatures.query;
 
     let numOfDocs = 0;
-    if (getTotalDocs) numOfDocs = await Model.countDocuments(where);
+    if (getTotalDocs)
+      numOfDocs = await new ApiFeatures(Model.find(where), req.query)
+        .search()
+        .sort()
+        .limitFields()
+        .query.countDocuments();
 
     let totalAmount = 0;
     if (getOrderAmount)
