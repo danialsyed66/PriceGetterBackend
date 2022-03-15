@@ -74,12 +74,16 @@ exports.getOne = (Model, populateOptions) =>
 exports.getAll = (Model, options = {}, sendRes = true) =>
   catchAsync(async (req, res, next) => {
     const { getTotalDocs, getOrderAmount, populateOptions } = options;
-    const { price, category, seller } = req.query;
+    const { price: priceQuery, category, seller } = req.query;
 
     const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
 
+    const price = {};
+    if (priceQuery?.gte) price.$gte = +priceQuery.gte;
+    if (priceQuery?.lte) price.$lte = +priceQuery.lte;
+
     const where = options.where || {
-      price: { $gt: +price.gt, $lt: +price.lt },
+      ...(price.$gte && { price }),
       ...(seller && { seller }),
       ...(category && { ['category.search']: category }),
     };

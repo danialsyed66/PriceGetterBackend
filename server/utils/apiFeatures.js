@@ -32,7 +32,7 @@ class ApiFeatures {
         ['updatedAt', -1],
       ]);
     } else {
-      this.query = this.query.sort('-createdAt');
+      this.query = this.query.sort('name');
     }
 
     return this;
