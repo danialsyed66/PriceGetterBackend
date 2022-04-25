@@ -16,8 +16,37 @@ exports.getOrder = factory.getOne(Order, {
   path: 'user',
   select: 'name email',
 });
-exports.createOrder = factory.createOne(Order);
 exports.deleteOrder = factory.deleteOne(Order);
+exports.createOrder = catchAsync(async (req, res, next) => {
+  const {
+    orderItems,
+    shippingInfo,
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+    paymentInfo,
+  } = req.body;
+
+  const order = await Order.create({
+    orderItems,
+    shippingInfo,
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+    paymentInfo,
+    paidAt: Date.now(),
+    user: req.user._id,
+  });
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      data: order,
+    },
+  });
+});
 
 exports.updateOrder = catchAsync(async (req, res, next) => {
   const order = await Order.findById(req.params.id);
