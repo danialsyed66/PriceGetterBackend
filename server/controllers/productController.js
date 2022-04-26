@@ -23,28 +23,42 @@ exports.updateProduct = factory.updateOne(Product);
 exports.deleteProduct = factory.deleteOne(Product);
 
 exports.createReview = catchAsync(async (req, res, next) => {
-  const product = await Product.findById(req.params.ProductId);
+  const {
+    productId,
+    review: { rating, review },
+  } = req.body;
+
+  const product = await Product.findById(productId);
 
   if (!product) return next(new AppError('Product not found', 404));
 
-  const { rating, review } = req.body;
-
   const isReviewd = product.reviews.some(rev => {
-    if (rev.user === req.user.id) {
+    if (rev.user.toString() === req.user.id) {
       rev.rating = rating;
       rev.review = review;
       return true;
     }
   });
 
-  if (!isReviewd) product.reviews.push({ user: req.user.id, rating, review });
+  if (!isReviewd)
+    product.reviews.push({
+      user: req.user.id,
+      rating,
+      review,
+      userName: req.user.name,
+    });
 
-  product.numOfReviews = product.reviews.length;
+  product.noOfReviews = product.reviews.length;
   product.rating =
     product.reviews.reduce((acc, rev) => acc + rev.rating, 0) /
-    product.numOfReviews;
+    product.noOfReviews;
 
   await product.save();
+
+  res.status(201).json({
+    status: 'success',
+    message: isReviewd ? 'Review updated' : 'Review added',
+  });
 });
 
 exports.getReviews = catchAsync(async (req, res, next) => {
@@ -55,7 +69,7 @@ exports.getReviews = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      numOfreviews: product.numOfreviews,
+      noOfReviews: product.noOfReviews,
       rating: product.rating,
       reviews: product.reviews,
     },
@@ -63,67 +77,28 @@ exports.getReviews = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteReview = catchAsync(async (req, res, next) => {
-  // const product = await Product.findById(req.params.ProductId);
+  const { productId, reviewId } = req.body;
 
-  // console.log(product.reviews[0]);
-  // console.log(product.reviews[1]);
-
-  // if (!product) return next(new AppError('Product not found', 404));
-
-  // // product.reviews = product.reviews.map(rev => {
-  // product.reviews = Object.values(product.reviews).map(rev => {
-  //   if (rev.user === req.user.id) return;
-
-  //   return rev;
-  // });
-
-  // product.numOfReviews = product.reviews.length;
-
-  // product.rating =
-  //   Object.values(product.reviews).reduce((acc, rev) => acc + rev.rating, 0) /
-  //   product.numOfReviews;
-  // // product.rating =
-  // //   product.reviews.reduce((acc, rev) => acc + rev.rating, 0) /
-  // //   product.numOfReviews;
-
-  // await product.save();
-
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     productRating: product.rating,
-  //     numOfReviews: product.numOfReviews,
-  //   },
-  // });
-
-  const product = await Product.findById(req.params.ProductId);
+  const product = await Product.findById(productId);
 
   const reviews = product.reviews.filter(
-    review => review._id.toString() !== req.query.id.toString()
+    review => review._id.toString() !== reviewId
   );
 
-  const numOfReviews = reviews.length;
+  const noOfReviews = reviews.length;
 
-  const ratings =
-    product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-    reviews.length;
+  const rating =
+    reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
 
-  await Product.findByIdAndUpdate(
-    req.params.ProductId,
-    {
-      reviews,
-      ratings,
-      numOfReviews,
-    },
-    {
-      new: true,
-      runValidators: true,
-      useFindAndModify: false,
-    }
-  );
+  product.reviews = reviews;
+  product.noOfReviews = noOfReviews;
+  product.rating = rating;
+
+  await product.save();
 
   res.status(200).json({
-    success: true,
+    status: 'success',
+    message: 'Review removed',
   });
 });
 

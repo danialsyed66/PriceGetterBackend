@@ -29,7 +29,12 @@ exports.createOrder = catchAsync(async (req, res, next) => {
   } = req.body;
 
   const order = await Order.create({
-    orderItems,
+    orderItems: orderItems.map(item => ({
+      ...item,
+      image: item.images?.length && item.images[0].url,
+      product: item._id,
+      _id: undefined,
+    })),
     shippingInfo,
     itemsPrice,
     taxPrice,

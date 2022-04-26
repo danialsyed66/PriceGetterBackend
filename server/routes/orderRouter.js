@@ -11,16 +11,12 @@ const {
 
 const { auth, authTo } = require('../controllers/authController');
 
-router.route('/').get(auth, authTo('admin'), getOrders);
+router.use(auth);
 
-router.route('/my').get(auth, myOrders);
+router.route('/my').get(myOrders);
 
-router.route('/create').post(auth, createOrder);
+router.route('/').get(authTo('admin'), getOrders).post(createOrder);
 
-router
-  .route('/:id')
-  .get(auth, getOrder)
-  .patch(auth, updateOrder)
-  .delete(auth, deleteOrder);
+router.route('/:id').get(getOrder).patch(updateOrder).delete(deleteOrder);
 
 module.exports = router;
