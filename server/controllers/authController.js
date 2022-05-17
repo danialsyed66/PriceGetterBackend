@@ -53,6 +53,27 @@ exports.login = catchAsync(async (req, res, next) => {
   sendToken(user, res, 201);
 });
 
+exports.adminLogin = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return next(new AppError('Please enter email and password to login'), 401);
+
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user) return next(new AppError('Wrong email or password', 401));
+
+  const passwordMatched = await user.comparePasswords(password);
+
+  if (!passwordMatched)
+    return next(new AppError('Wrong email or password', 401));
+
+  if (user.role !== 'admin')
+    return next(new AppError('This route is only for admin login', 401));
+
+  sendToken(user, res, 201);
+});
+
 exports.logout = (req, res, next) => {
   res
     .status(200)

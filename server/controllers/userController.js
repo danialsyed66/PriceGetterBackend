@@ -4,11 +4,6 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryController');
 
-exports.getAllUsers = factory.getAll(User);
-exports.getUserById = factory.getOne(User);
-exports.updateUser = factory.updateOne(User);
-exports.deleteUser = factory.deleteOne(User);
-
 exports.getUserProfile = (req, res, next) => {
   res.status(200).json({
     status: 'success',

@@ -6,9 +6,7 @@ const {
 } = require('../controllers/paymentController');
 const { auth } = require('../controllers/authController');
 
-router.use(auth);
-
-router.route('/process').post(processPayment);
-router.route('/getStripeApiKey').get(sendStripeApiKey);
+router.route('/process').post(auth, processPayment);
+router.route('/getStripeApiKey').get(auth, sendStripeApiKey);
 
 module.exports = router;

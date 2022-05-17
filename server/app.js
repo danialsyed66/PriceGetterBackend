@@ -12,8 +12,9 @@ const cookieSession = require('cookie-session');
 
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
-const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRouter');
+const adminRouter = require('./routes/adminRouter');
+const authRouter = require('./routes/authRouter');
 const productRouter = require('./routes/productRouter');
 const orderRouter = require('./routes/orderRouter');
 const paymentRouter = require('./routes/paymentRouter');
@@ -56,8 +57,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', userRouter);
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/payment', paymentRouter);
