@@ -25,7 +25,7 @@ exports.addPost = {
       images,
       user: id,
       name,
-      avatar,
+      avatar: avatar ? avatar.url : undefined,
     });
 
     res.status(201).json({
@@ -60,7 +60,7 @@ exports.getPost = catchAsync(async (req, res, next) => {
   if (!post)
     return res.status(404).json({
       status: 'error',
-      msg: 'There is no post by this id.',
+      message: 'There is no post by this id.',
     });
 
   res.status(200).json({
@@ -76,7 +76,7 @@ exports.deletePost = catchAsync(async (req, res, next) => {
     return res.status(400).json({
       status: 'error',
       data: {
-        message: 'Post id is required to make a comment',
+        message: 'Post id is required to delete a post',
       },
     });
 
@@ -85,16 +85,18 @@ exports.deletePost = catchAsync(async (req, res, next) => {
   if (!post)
     return res.status(404).json({
       status: 'error',
-      msg: 'There is no post by this id.',
+      message: 'There is no post by this id.',
     });
 
   if (post.user.toString() !== req.user.id)
     return res.status(401).json({
       status: 'error',
-      msg: 'You are not authorized.',
+      message: 'You are not authorized.',
     });
 
-  res.status(204).json({
+  await Post.findByIdAndDelete(postId);
+
+  await res.status(204).json({
     status: 'success',
   });
 });
@@ -115,7 +117,7 @@ exports.likePost = catchAsync(async (req, res, next) => {
   if (!post)
     return res.status(404).json({
       status: 'error',
-      msg: 'There is no post by this id.',
+      message: 'There is no post by this id.',
     });
 
   const likeIndex = post.likes
@@ -177,7 +179,7 @@ exports.addComment = {
       images,
       user: id,
       name,
-      avatar,
+      avatar: avatar ? avatar.url : undefined,
     });
 
     await post.save();
@@ -205,7 +207,7 @@ exports.deleteComment = catchAsync(async (req, res, next) => {
   if (!post)
     return res.status(404).json({
       status: 'error',
-      msg: 'There is no post by this id.',
+      message: 'There is no post by this id.',
     });
 
   const commentIndex = post.comments
@@ -215,7 +217,7 @@ exports.deleteComment = catchAsync(async (req, res, next) => {
   if (commentIndex < 0)
     return res.status(404).json({
       status: 'error',
-      msg: 'There is no comment by this id.',
+      message: 'There is no comment by this id.',
     });
 
   if (
@@ -226,7 +228,7 @@ exports.deleteComment = catchAsync(async (req, res, next) => {
   )
     return res.status(401).json({
       status: 'error',
-      msg: 'You are not authorized.',
+      message: 'You are not authorized.',
     });
 
   post.comments.splice(commentIndex, 1);

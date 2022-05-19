@@ -20,12 +20,12 @@ module.exports = (err, req, res, next) => {
   }
 
   if (err.name === 'JsonWebTokenError') {
-    const message = `Json Web Token is not a valid. Please try again`;
+    const message = `You are not logged in.`;
     error = new AppError(message, 400);
   }
 
   if (err.name === 'TokenExpiredError') {
-    const message = `Json Web Token has exp. Please try again`;
+    const message = `Your login has expires. Please login again`;
     error = new AppError(message, 400);
   }
 
