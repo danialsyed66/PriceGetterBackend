@@ -14,6 +14,7 @@ const {
   getUserProfile,
   updateUserProfile,
   handleFavouriteProducts,
+  getUserFavourites,
 } = require('../controllers/userController');
 
 router.route('/register').post(register);
@@ -29,5 +30,6 @@ router.route('/profile').get(auth, getUserProfile);
 router.route('/profile/edit').post(auth, updateUserProfile);
 
 router.route('/favourites/:productId').patch(auth, handleFavouriteProducts);
+router.route('/favourites').get(auth, getUserFavourites);
 
 module.exports = router;

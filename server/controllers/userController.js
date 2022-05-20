@@ -13,6 +13,20 @@ exports.getUserProfile = (req, res, next) => {
   });
 };
 
+exports.getUserFavourites = catchAsync(async (req, res, next) => {
+  const { favourites } = await User.findById(req.user._id).populate({
+    path: 'favourites.product',
+    select: 'name price url images',
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      favourites,
+    },
+  });
+});
+
 exports.updateUserProfile = catchAsync(async (req, res, next) => {
   const newData = {
     name: req.body.name,

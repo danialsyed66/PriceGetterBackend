@@ -174,7 +174,7 @@ exports.addComment = {
 
     const { id, name, avatar } = await User.findOne({ _id: req.user.id });
 
-    post.comments.unshift({
+    post.comments.push({
       text,
       images,
       user: id,
