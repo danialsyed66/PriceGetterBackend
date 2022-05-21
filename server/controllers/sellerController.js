@@ -24,9 +24,9 @@ exports.createSeller = catchAsync(async (req, res, next) => {
           url: result.secure_url,
         }
       : {
-          url: 'https://res.cloudinary.com/dlwaao9wl/image/upload/v1646261104/avatars/dykfln0kprkc6dwcrmm3.png',
+          url: 'https://res.cloudinary.com/dlwaao9wl/image/upload/v1653167546/logos/ilfvq5tta1q6ibccxqg4.png',
         },
-    user,
+    user: user || undefined,
   });
 
   res.status(201).json({
@@ -39,14 +39,15 @@ exports.createSeller = catchAsync(async (req, res, next) => {
 
 exports.sellerSeeder = catchAsync(async (req, res, next) => {
   const daraz = await Seller.findOne({ name: 'Daraz' });
-  // const goto = await Seller.findOne({ name: 'Goto' });
+  const goto = await Seller.findOne({ name: 'Goto' });
   const yayvo = await Seller.findOne({ name: 'Yayvo' });
 
   const products = await Product.count();
   const darazProducts = await Product.count({ seller: daraz._id });
   const yayvoProducts = await Product.count({ seller: yayvo._id });
+  const gotoProducts = await Product.count({ seller: goto._id });
   const otherProducts = await Product.find({
-    $and: [{ seller: { $ne: yayvo._id } }, { seller: { $ne: daraz._id } }],
+    seller: { $nin: [yayvo._id, daraz._id, goto._id] },
   });
   // console.log(otherProducts);
 
@@ -62,9 +63,9 @@ exports.sellerSeeder = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       products,
-      products,
       darazProducts,
       yayvoProducts,
+      gotoProducts,
       otherProducts,
       // daraz,
       // goto,

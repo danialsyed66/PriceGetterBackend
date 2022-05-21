@@ -14,6 +14,7 @@ const {
   getUserById,
   updateUser,
   deleteUser,
+  sellerAction,
 } = require('../controllers/adminController');
 
 router.route('/login').post(adminLogin);
@@ -31,5 +32,6 @@ router
 // For Sellers
 router.route('/sellers').get(auth, authTo('admin'), getAllSellers);
 router.route('/sellers/pending').get(auth, authTo('admin'), getPendingSellers);
+router.route('/sellers/:id/action').patch(auth, authTo('admin'), sellerAction);
 
 module.exports = router;

@@ -1,12 +1,12 @@
 const router = require('express').Router();
 
-const { auth } = require('../controllers/authController');
+const { auth, authTo } = require('../controllers/authController');
 const {
   createSeller,
   sellerSeeder,
 } = require('../controllers/sellerController');
 
-router.route('/').post(createSeller);
-router.route('/seeder').post(sellerSeeder);
+router.route('/').post(auth, authTo('admin'), createSeller);
+router.route('/seeder').post(auth, authTo('admin'), sellerSeeder);
 
 module.exports = router;
