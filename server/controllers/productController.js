@@ -69,7 +69,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
       },
       { _id: { $nin: ids } },
     ],
-  }).limit(7 - ids.length);
+  }).limit(2);
 
   const similar = [...d, ...a, ...b, ...c];
 
