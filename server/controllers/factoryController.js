@@ -73,7 +73,8 @@ exports.getOne = (Model, populateOptions) =>
 
 exports.getAll = (Model, options = {}, sendRes = true) =>
   catchAsync(async (req, res, next) => {
-    const { getTotalDocs, getOrderAmount, populateOptions } = options;
+    const { getTotalDocs, getOrderAmount, populateOptions, isProduct } =
+      options;
     const { price: priceQuery, category, seller } = req.query;
 
     const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
@@ -89,7 +90,11 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
     };
 
     // Creating a query
-    let apiFeatures = new ApiFeatures(Model.find(where), req.query)
+    let apiFeatures = new ApiFeatures(
+      Model.find(where),
+      req.query,
+      isProduct && 'images name price rating stock seller'
+    )
       .search()
       .sort()
       .limitFields()

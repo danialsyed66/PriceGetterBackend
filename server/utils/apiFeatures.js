@@ -1,7 +1,8 @@
 class ApiFeatures {
-  constructor(query, queryString) {
+  constructor(query, queryString, limit) {
     this.query = query;
     this.queryString = queryString;
+    this.limit = limit;
     this.docsFound;
   }
 
@@ -39,7 +40,9 @@ class ApiFeatures {
   }
 
   limitFields() {
-    if (this.queryString.fields) {
+    if (this.limit) {
+      this.query = this.query.select(this.limit);
+    } else if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
 
       this.query = this.query.select(fields);

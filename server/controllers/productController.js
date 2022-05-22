@@ -10,6 +10,7 @@ exports.getProducts = factory.getAll(Product, {
     path: 'seller',
     select: '-__v -createdAt -updatedAt',
   },
+  isProduct: true,
 });
 
 exports.getProduct = catchAsync(async (req, res, next) => {
@@ -26,50 +27,64 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   let ids = [doc._id];
 
-  const a = await Product.find({
-    $and: [
-      {
-        'category.base': doc.category.base,
-      },
-      { _id: { $nin: ids } },
-    ],
-  }).limit(2);
+  const limitFields = 'images name price rating stock seller';
+
+  const a = await Product.find(
+    {
+      $and: [
+        {
+          'category.base': doc.category.base,
+        },
+        { _id: { $nin: ids } },
+      ],
+    },
+    limitFields
+  ).limit(2);
 
   ids = [...ids, ...a.map(prod => prod._id)];
 
-  const b = await Product.find({
-    $and: [
-      {
-        'category.sub': doc.category.sub,
-      },
-      { _id: { $nin: ids } },
-    ],
-  }).limit(2);
+  const b = await Product.find(
+    {
+      $and: [
+        {
+          'category.sub': doc.category.sub,
+        },
+        { _id: { $nin: ids } },
+      ],
+    },
+    limitFields
+  ).limit(2);
 
   ids = [...ids, ...b.map(prod => prod._id)];
 
-  const c = await Product.find({
-    $and: [
-      {
-        'category.head': doc.category.head,
-      },
-      { _id: { $nin: ids } },
-    ],
-  }).limit(2);
+  const c = await Product.find(
+    {
+      $and: [
+        {
+          'category.head': doc.category.head,
+        },
+        { _id: { $nin: ids } },
+      ],
+    },
+    limitFields
+  ).limit(2);
 
   ids = [...ids, ...c.map(prod => prod._id)];
 
-  const d = await Product.find({
-    $and: [
-      {
-        'category.search': doc.category.search,
-      },
-      {
-        seller: { $ne: doc.seller._id },
-      },
-      { _id: { $nin: ids } },
-    ],
-  }).limit(2);
+  const d = await Product.find(
+    {
+      $and: [
+        {
+          'category.search': doc.category.search,
+        },
+        {
+          seller: { $ne: doc.seller._id },
+        },
+        { _id: { $nin: ids } },
+      ],
+    },
+    limitFields
+  ).limit(2);
 
   const similar = [...d, ...a, ...b, ...c];
 
@@ -172,6 +187,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
   const { _id: darazId } = await Seller.findOne({ name: 'Daraz' });
   const { _id: yayvoId } = await Seller.findOne({ name: 'Yayvo' });
   const { _id: gotoId } = await Seller.findOne({ name: 'Goto' });
+  const { _id: iBucketId } = await Seller.findOne({ name: 'iBucket' });
 
   const getData = async where => {
     const { data } = await factory.getAll(
@@ -182,6 +198,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
           path: 'seller',
           select: '-__v -createdAt -updatedAt',
         },
+        isProduct: true,
       },
       false
     )(req, res, next);
@@ -192,6 +209,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
   const daraz = await getData({ seller: darazId });
   const yayvo = await getData({ seller: yayvoId });
   const goto = await getData({ seller: gotoId });
+  const iBucket = await getData({ seller: iBucketId });
 
   const accessories = await getData({ ['category.search']: 'Accessories' });
   const books = await getData({ ['category.search']: 'Books' });
@@ -212,6 +230,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
         daraz,
         yayvo,
         goto,
+        iBucket,
       },
       categories: {
         accessories,
