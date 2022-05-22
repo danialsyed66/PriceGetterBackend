@@ -11,6 +11,11 @@ const sendEmail = require('../utils/sendEmail');
 exports.register = catchAsync(async (req, res, next) => {
   const { name, email, password, avatar, role } = req.body;
 
+  let roles = 'user';
+  if (role) {
+    roles = 'seller-pending';
+  }
+
   let result;
   if (avatar)
     result = await cloudinary.v2.uploader.upload(avatar, {
@@ -29,7 +34,7 @@ exports.register = catchAsync(async (req, res, next) => {
           url: result.secure_url,
         }
       : undefined,
-    role: role === 'seller' ? 'seller-pending' : 'user',
+    role: roles,
   });
 
   sendToken(user, res, 201);
