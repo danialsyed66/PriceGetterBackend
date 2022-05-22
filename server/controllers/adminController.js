@@ -23,6 +23,7 @@ exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
 exports.sellerAction = catchAsync(async (req, res, next) => {
+  console.log(req.body);
   const role = req.body.action === 'approve' ? 'seller' : 'user';
   const seller = await User.findByIdAndUpdate(
     req.params.id,

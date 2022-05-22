@@ -32,6 +32,6 @@ router
 // For Sellers
 router.route('/sellers').get(auth, authTo('admin'), getAllSellers);
 router.route('/sellers/pending').get(auth, authTo('admin'), getPendingSellers);
-router.route('/sellers/:id/action').patch(auth, authTo('admin'), sellerAction);
+router.route('/sellers/:id').patch(auth, authTo('admin'), sellerAction);
 
 module.exports = router;
