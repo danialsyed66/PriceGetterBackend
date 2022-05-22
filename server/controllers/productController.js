@@ -29,6 +29,11 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   const limitFields = 'images name price rating stock seller';
 
+  const populateOptions = {
+    path: 'seller',
+    select: '-__v -createdAt -updatedAt',
+  };
+
   const a = await Product.find(
     {
       $and: [
@@ -39,7 +44,9 @@ exports.getProduct = catchAsync(async (req, res, next) => {
       ],
     },
     limitFields
-  ).limit(2);
+  )
+    .limit(2)
+    .populate(populateOptions);
 
   ids = [...ids, ...a.map(prod => prod._id)];
 
@@ -53,7 +60,9 @@ exports.getProduct = catchAsync(async (req, res, next) => {
       ],
     },
     limitFields
-  ).limit(2);
+  )
+    .limit(2)
+    .populate(populateOptions);
 
   ids = [...ids, ...b.map(prod => prod._id)];
 
@@ -67,7 +76,9 @@ exports.getProduct = catchAsync(async (req, res, next) => {
       ],
     },
     limitFields
-  ).limit(2);
+  )
+    .limit(2)
+    .populate(populateOptions);
 
   ids = [...ids, ...c.map(prod => prod._id)];
 
@@ -84,7 +95,9 @@ exports.getProduct = catchAsync(async (req, res, next) => {
       ],
     },
     limitFields
-  ).limit(2);
+  )
+    .limit(2)
+    .populate(populateOptions);
 
   const similar = [...d, ...a, ...b, ...c];
 
