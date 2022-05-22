@@ -23,7 +23,6 @@ exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
 exports.sellerAction = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const role = req.body.action === 'approve' ? 'seller' : 'user';
   const seller = await User.findByIdAndUpdate(
     req.params.id,
@@ -52,9 +51,30 @@ exports.sellerAction = catchAsync(async (req, res, next) => {
     user: seller._id,
   });
 
-  if (role !== 'seller')
-    return res.status(200).json({
-      status: 'success',
-      data: { user: seller, seller: sellert },
-    });
+  return res.status(200).json({
+    status: 'success',
+    data: { user: seller, seller: sellert },
+  });
+});
+
+exports.deleteSeller = catchAsync(async (req, res, next) => {
+  const doc = await User.findById(req.params.id);
+
+  if (!doc) return new AppError('Seller with id not found', 404);
+
+  if (doc.role !== 'seller')
+    return new AppError('Seller with id not found', 404);
+
+  await User.deleteOne({ _id: req.params.id });
+  const sellerModel = await Seller.findOne({ seller: req.params.id });
+
+  if (sellerModel) {
+    await Seller.deleteOne({ seller: req.params.id });
+    await Products.delete({ seller: sellerModel._id });
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
 });

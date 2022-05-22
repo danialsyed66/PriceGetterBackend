@@ -15,6 +15,7 @@ const {
   updateUser,
   deleteUser,
   sellerAction,
+  deleteSeller,
 } = require('../controllers/adminController');
 
 router.route('/login').post(adminLogin);
@@ -32,6 +33,9 @@ router
 // For Sellers
 router.route('/sellers').get(auth, authTo('admin'), getAllSellers);
 router.route('/sellers/pending').get(auth, authTo('admin'), getPendingSellers);
-router.route('/sellers/:id').patch(auth, authTo('admin'), sellerAction);
+router
+  .route('/sellers/:id')
+  .patch(auth, authTo('admin'), sellerAction)
+  .delete(auth, authTo('admin'), deleteSeller);
 
 module.exports = router;
