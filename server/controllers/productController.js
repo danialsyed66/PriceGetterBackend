@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Seller = require('../models/seller');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryController');
 
@@ -11,9 +12,74 @@ exports.getProducts = factory.getAll(Product, {
   },
 });
 
-exports.getProduct = factory.getOne(Product, {
-  path: 'seller',
-  select: '-__v -createdAt -updatedAt',
+exports.getProduct = catchAsync(async (req, res, next) => {
+  const query = Product.findById(req.params.id);
+
+  query.populate({
+    path: 'seller',
+    select: '-__v -createdAt -updatedAt',
+  });
+
+  const doc = await query;
+
+  if (!doc) return next(new AppError('Product with id not found', 404));
+
+  let ids = [doc._id];
+
+  const a = await Product.find({
+    $and: [
+      {
+        'category.base': doc.category.base,
+      },
+      { _id: { $nin: ids } },
+    ],
+  }).limit(2);
+
+  ids = [...ids, ...a.map(prod => prod._id)];
+
+  const b = await Product.find({
+    $and: [
+      {
+        'category.sub': doc.category.sub,
+      },
+      { _id: { $nin: ids } },
+    ],
+  }).limit(2);
+
+  ids = [...ids, ...b.map(prod => prod._id)];
+
+  const c = await Product.find({
+    $and: [
+      {
+        'category.head': doc.category.head,
+      },
+      { _id: { $nin: ids } },
+    ],
+  }).limit(2);
+
+  ids = [...ids, ...c.map(prod => prod._id)];
+
+  const d = await Product.find({
+    $and: [
+      {
+        'category.search': doc.category.search,
+      },
+      {
+        seller: { $ne: doc.seller._id },
+      },
+      { _id: { $nin: ids } },
+    ],
+  }).limit(7 - ids.length);
+
+  const similar = [...d, ...a, ...b, ...c];
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      product: doc,
+      similar: { results: similar.length, similar },
+    },
+  });
 });
 
 exports.createProduct = factory.createOne(Product);
@@ -105,7 +171,7 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
 exports.getHomePage = catchAsync(async (req, res, next) => {
   const { _id: darazId } = await Seller.findOne({ name: 'Daraz' });
   const { _id: yayvoId } = await Seller.findOne({ name: 'Yayvo' });
-  // const { _id: gotoId } = await Seller.findOne({ name: 'Goto' });
+  const { _id: gotoId } = await Seller.findOne({ name: 'Goto' });
 
   const getData = async where => {
     const { data } = await factory.getAll(
@@ -125,7 +191,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
 
   const daraz = await getData({ seller: darazId });
   const yayvo = await getData({ seller: yayvoId });
-  // const goto = await getData({ seller: gotoId });
+  const goto = await getData({ seller: gotoId });
 
   const accessories = await getData({ ['category.search']: 'Accessories' });
   const books = await getData({ ['category.search']: 'Books' });
@@ -145,7 +211,7 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
       sellers: {
         daraz,
         yayvo,
-        // goto,
+        goto,
       },
       categories: {
         accessories,
