@@ -12,10 +12,10 @@ const {
   getHomePage,
 } = require('../controllers/productController');
 
-const { auth, authTo } = require('../controllers/authController');
+const { auth, authTo, authCheck } = require('../controllers/authController');
 
-router.route('/').get(getProducts);
-router.route('/getHomePage').get(getHomePage);
+router.route('/').get(authCheck, getProducts);
+router.route('/getHomePage').get(authCheck, getHomePage);
 
 router.route('/create').post(auth, authTo('admin', 'seller'), createProduct);
 

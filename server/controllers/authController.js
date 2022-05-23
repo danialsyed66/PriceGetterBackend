@@ -112,6 +112,25 @@ exports.auth = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.authCheck = catchAsync(async (req, res, next) => {
+  if (!req.headers) return next();
+
+  // const { token } = req.cookies;
+  const { token } = req.headers;
+
+  if (!token) return next();
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser) return next();
+
+  req.user = currentUser;
+
+  next();
+});
+
 exports.authTo =
   (...roles) =>
   (req, res, next) => {

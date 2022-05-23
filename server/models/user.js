@@ -52,6 +52,7 @@ const Schema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetTimeout: Date,
     provider: String,
+    searchHistory: [{ type: String }],
   },
   { timestamps: true }
 );

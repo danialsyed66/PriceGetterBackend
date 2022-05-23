@@ -79,7 +79,20 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
       price: priceQuery,
       category: categoryQuery,
       seller: sellerQuery,
+      keyword,
     } = req.query;
+
+    const { user } = req;
+
+    if (isProduct && user && keyword) {
+      const { searchHistory } = user;
+
+      if (!searchHistory?.includes(keyword)) {
+        user.searchHistory = [searchHistory?.[1], keyword];
+
+        await user.save();
+      }
+    }
 
     const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
 

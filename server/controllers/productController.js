@@ -101,6 +101,10 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   const similar = [...d, ...a, ...b, ...c];
 
+  const { clicks } = doc;
+  doc.clicks = clicks ? clicks + 1 : 1;
+  doc.save({ validateBeforeSave: false });
+
   res.status(200).json({
     status: 'success',
     data: {

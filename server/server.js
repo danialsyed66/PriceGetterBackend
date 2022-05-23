@@ -2,6 +2,8 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary');
 
+const Product = require('./models/product');
+
 dotenv.config({ path: 'server/config.env' });
 
 global.socialUser = undefined;
@@ -37,7 +39,18 @@ mongoose
   })
   .then(con =>
     console.log(`Connected to MongoDB Host: ${con.connection.host}...`)
-  );
+  )
+  .then(async () => {
+    // const prods = await Product.find({ discount: '' });
+    // console.log(prods.length);
+    // for (let index = 0; index < prods.length; index++) {
+    //   console.log(index);
+    //   const prod = prods[index];
+    //   if (prod.discount === '' || !prod.discount) prod.discount = 0;
+    //   await prod.save({ validateBeforeSave: false });
+    // }
+    // console.log('Done');
+  });
 
 process.on('unhandledRejection', err => {
   console.log('UNCAUGHT REJECTION!!! 💥');

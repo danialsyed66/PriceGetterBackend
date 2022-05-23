@@ -29,9 +29,12 @@ class ApiFeatures {
 
       const sortArr = [sort[0], sort[1] === 'asd' ? 1 : -1];
 
-      this.query = this.query.sort([sortArr, ['updatedAt', -1]]);
+      this.query = this.query.sort([sortArr, ['clicks updatedAt', -1]]);
     } else {
-      this.query = this.query.sort('name');
+      this.query = this.query.sort([
+        ['clicks', -1],
+        ['name', 1],
+      ]);
     }
 
     return this;

@@ -42,8 +42,8 @@ const schema = new mongoose.Schema(
     },
     images: [
       {
-        public_id: { type: String, required: true },
-        url: { type: String, required: true },
+        public_id: { type: String },
+        url: { type: String },
       },
     ],
     category: {
@@ -96,6 +96,7 @@ const schema = new mongoose.Schema(
     brand: String,
     installment: String,
     pricegetter: Boolean,
+    clicks: Number,
   },
   { timestamps: true }
 );
