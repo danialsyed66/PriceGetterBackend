@@ -25,13 +25,11 @@ class ApiFeatures {
 
   sort() {
     if (this.queryString.sort) {
-      const sort = this.queryString.sort.split(',').join(' ');
-      const sortVal = +this.queryString.sortVal || -1;
+      const sort = this.queryString.sort.split(',');
 
-      this.query = this.query.sort([
-        [sort, sortVal],
-        ['updatedAt', -1],
-      ]);
+      const sortArr = [sort[0], sort[1] === 'asd' ? 1 : -1];
+
+      this.query = this.query.sort([sortArr, ['updatedAt', -1]]);
     } else {
       this.query = this.query.sort('name');
     }

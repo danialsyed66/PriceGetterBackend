@@ -75,18 +75,42 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
   catchAsync(async (req, res, next) => {
     const { getTotalDocs, getOrderAmount, populateOptions, isProduct } =
       options;
-    const { price: priceQuery, category, seller } = req.query;
+    const {
+      price: priceQuery,
+      category: categoryQuery,
+      seller: sellerQuery,
+    } = req.query;
 
     const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
 
     const price = {};
     if (priceQuery?.gte) price.$gte = +priceQuery.gte;
     if (priceQuery?.lte) price.$lte = +priceQuery.lte;
+    if (price.$gte === 0) price.$gte = 1;
+
+    let sellerArray = sellerQuery?.split(',').map(seller => seller?.trim());
+    const getPriceGetter = sellerArray?.includes('PriceGetter');
+    sellerArray = sellerArray?.filter(seller => seller !== 'PriceGetter');
+    const sellers = sellerArray?.map(seller => ({ seller: seller?.trim() }));
+
+    const categoryArray = categoryQuery?.split(',');
+    const categories = categoryArray?.map(category => ({
+      ['category.search']: category?.trim(),
+    }));
+
+    const orCondition = {
+      $or: [
+        ...(sellers ? [...sellers] : []),
+        ...(categories ? [...categories] : []),
+        ...(getPriceGetter ? [{ pricegetter: true }] : []),
+      ],
+    };
+
+    const conditionExists = sellerQuery || categoryQuery;
 
     const where = options.where || {
       ...(price.$gte && { price }),
-      ...(seller && { seller }),
-      ...(category && { ['category.search']: category }),
+      ...(conditionExists && orCondition),
     };
 
     // Creating a query
