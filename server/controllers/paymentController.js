@@ -3,7 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const catchAsync = require('../utils/catchAsync');
 
 exports.processPayment = catchAsync(async (req, res, next) => {
-  const paymentIntent = await stripe.paymentIntent.create({
+  const paymentIntent = await stripe.paymentIntents.create({
     amount: req.body.amount,
     currency: req.body.currency || 'pkr',
 
