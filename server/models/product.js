@@ -32,6 +32,7 @@ const schema = new mongoose.Schema(
       default: function () {
         return this.name;
       },
+      trim: true,
     },
     rating: {
       type: Number,
@@ -91,9 +92,10 @@ const schema = new mongoose.Schema(
       },
     ],
     url: String,
-    discount: String,
+    discount: Number,
     brand: String,
     installment: String,
+    pricegetter: Boolean,
   },
   { timestamps: true }
 );

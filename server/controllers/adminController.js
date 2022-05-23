@@ -1,23 +1,28 @@
 const User = require('../models/user');
 const Seller = require('../models/seller');
+const Product = require('../models/product');
 const factory = require('./factoryController');
 const catchAsync = require('../utils/catchAsync');
+const mongoose = require('mongoose');
 
 exports.getAllUsers = factory.getAll(User, {
   where: {
     role: 'user',
   },
 });
+
 exports.getAllSellers = factory.getAll(User, {
   where: {
     role: 'seller',
   },
 });
+
 exports.getPendingSellers = factory.getAll(User, {
   where: {
     role: 'seller-pending',
   },
 });
+
 exports.getUserById = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
@@ -66,7 +71,7 @@ exports.deleteSeller = catchAsync(async (req, res, next) => {
     return new AppError('Seller with id not found', 404);
 
   await User.deleteOne({ _id: req.params.id });
-  const sellerModel = await Seller.findOne({ seller: req.params.id });
+  const sellerModel = await Seller.findById({ seller: req.params.id });
 
   if (sellerModel) {
     await Seller.deleteOne({ seller: req.params.id });
@@ -76,5 +81,47 @@ exports.deleteSeller = catchAsync(async (req, res, next) => {
   res.status(204).json({
     status: 'success',
     data: null,
+  });
+});
+
+exports.getUsersCount = catchAsync(async (req, res, next) => {
+  const userCount = await User.countDocuments({ role: 'user' });
+  const sellerCount = await User.countDocuments({ role: 'seller' });
+  const pendingSellerCount = await User.countDocuments({
+    role: 'seller-pending',
+  });
+  const totalCount = await User.countDocuments();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      totalCount,
+      userCount,
+      sellerCount,
+      pendingSellerCount,
+    },
+  });
+});
+
+exports.getProductsCount = catchAsync(async (req, res, next) => {
+  const totalCount = await Product.countDocuments();
+  const sellers = await Product.distinct('seller');
+  let bySellers = [];
+
+  bySellers = await Promise.all(
+    sellers.map(async seller => {
+      const productCount = await Product.countDocuments({ seller });
+      const sellerObj = await Seller.findById(seller);
+
+      return { productCount, seller: sellerObj };
+    })
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      totalCount,
+      bySellers,
+    },
   });
 });

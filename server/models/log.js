@@ -5,6 +5,8 @@ const schema = mongoose.Schema({
   darazTime: Number,
   yayvoTime: Number,
   gotoTime: Number,
+  iBucketTime: Number,
+  telemartTime: Number,
   totalTime: Number,
   error: { position: String, stack: String },
   htmls: [{ html1: String, html: String }],
