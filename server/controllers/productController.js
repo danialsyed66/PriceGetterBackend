@@ -223,6 +223,34 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
     return data;
   };
 
+  const { user } = req;
+  let recommendedArr = [];
+
+  if (user?.searchHistory?.length > 0) {
+    const { keyword, resPerPage } = req.query;
+
+    let a = [];
+    let b = [];
+
+    req.query.resPerPage = 3;
+    if (user?.searchHistory?.[0]) {
+      req.query.keyword = user?.searchHistory?.[0];
+
+      a = await getData();
+    }
+
+    if (user?.searchHistory?.[1]) {
+      req.query.keyword = user?.searchHistory?.[1];
+
+      b = await getData();
+    }
+
+    recommendedArr = [...b, ...a];
+
+    req.query.keyword = keyword;
+    req.query.resPerPage = resPerPage || process.env.RESULTS_PER_PAGE;
+  }
+
   const daraz = await getData({ seller: darazId });
   const yayvo = await getData({ seller: yayvoId });
   const goto = await getData({ seller: gotoId });
@@ -243,6 +271,12 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     data: {
+      ...(recommendedArr?.length > 0 && {
+        recommended: {
+          results: recommendedArr?.length,
+          recommended: recommendedArr,
+        },
+      }),
       sellers: {
         daraz,
         yayvo,
