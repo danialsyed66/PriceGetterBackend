@@ -25,7 +25,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   if (!doc) return next(new AppError('Product with id not found', 404));
 
-  let ids = [doc._id];
+  let idsFound = [doc._id];
 
   const limitFields = 'images name price rating stock seller';
 
@@ -34,13 +34,13 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     select: '-__v -createdAt -updatedAt',
   };
 
-  const a = await Product.find(
+  const similar1 = await Product.find(
     {
       $and: [
         {
           'category.base': doc.category.base,
         },
-        { _id: { $nin: ids } },
+        { _id: { $nin: idsFound } },
       ],
     },
     limitFields
@@ -48,15 +48,15 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     .limit(2)
     .populate(populateOptions);
 
-  ids = [...ids, ...a.map(prod => prod._id)];
+  idsFound = [...idsFound, ...similar1.map(prod => prod._id)];
 
-  const b = await Product.find(
+  const similar2 = await Product.find(
     {
       $and: [
         {
           'category.sub': doc.category.sub,
         },
-        { _id: { $nin: ids } },
+        { _id: { $nin: idsFound } },
       ],
     },
     limitFields
@@ -64,15 +64,15 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     .limit(2)
     .populate(populateOptions);
 
-  ids = [...ids, ...b.map(prod => prod._id)];
+  idsFound = [...idsFound, ...similar2.map(prod => prod._id)];
 
-  const c = await Product.find(
+  const similar3 = await Product.find(
     {
       $and: [
         {
           'category.head': doc.category.head,
         },
-        { _id: { $nin: ids } },
+        { _id: { $nin: idsFound } },
       ],
     },
     limitFields
@@ -80,9 +80,9 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     .limit(2)
     .populate(populateOptions);
 
-  ids = [...ids, ...c.map(prod => prod._id)];
+  idsFound = [...idsFound, ...similar3.map(prod => prod._id)];
 
-  const d = await Product.find(
+  const similar4 = await Product.find(
     {
       $and: [
         {
@@ -91,7 +91,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
         {
           seller: { $ne: doc.seller._id },
         },
-        { _id: { $nin: ids } },
+        { _id: { $nin: idsFound } },
       ],
     },
     limitFields
@@ -99,11 +99,11 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     .limit(2)
     .populate(populateOptions);
 
-  const similar = [...d, ...a, ...b, ...c];
+  const similar = [...similar1, ...similar2, ...similar3, ...similar4];
 
   const { clicks } = doc;
   doc.clicks = clicks ? clicks + 1 : 1;
-  doc.save({ validateBeforeSave: false });
+  await doc.save({ validateBeforeSave: false });
 
   res.status(200).json({
     status: 'success',
@@ -250,6 +250,10 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
     req.query.keyword = keyword;
     req.query.resPerPage = resPerPage || process.env.RESULTS_PER_PAGE;
   }
+
+  const storeData = async (variable, condition) => {
+    variable = await getData(condition);
+  };
 
   const daraz = await getData({ seller: darazId });
   const yayvo = await getData({ seller: yayvoId });

@@ -79,6 +79,8 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
       price: priceQuery,
       category: categoryQuery,
       seller: sellerQuery,
+      onSale,
+      discount: discountQuery,
       keyword,
     } = req.query;
 
@@ -100,6 +102,12 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
     if (priceQuery?.gte) price.$gte = +priceQuery.gte;
     if (priceQuery?.lte) price.$lte = +priceQuery.lte;
     if (price.$gte === 0) price.$gte = 1;
+
+    const discount = {};
+    if (onSale) discount.$gte = 1;
+    if (discountQuery?.gte) discount.$gte = +discountQuery.gte;
+    if (discountQuery?.lte) discount.$lte = +discountQuery.lte;
+    if (discount.$gte === 0) discount.$gte = 1;
 
     let sellerArray = sellerQuery?.split(',').map(seller => seller?.trim());
     const getPriceGetter = sellerArray?.includes('PriceGetter');
@@ -123,6 +131,7 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
 
     const where = options.where || {
       ...(price.$gte && { price }),
+      ...(onSale && { discount }),
       ...(conditionExists && orCondition),
     };
 
@@ -130,7 +139,7 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
     let apiFeatures = new ApiFeatures(
       Model.find(where),
       req.query,
-      isProduct && 'images name price rating stock seller'
+      isProduct && 'images name price rating stock seller discount'
     )
       .search()
       .sort()
