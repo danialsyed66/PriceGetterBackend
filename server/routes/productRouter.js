@@ -17,7 +17,7 @@ const { auth, authTo, authCheck } = require('../controllers/authController');
 router.route('/').get(authCheck, getProducts);
 router.route('/getHomePage').get(authCheck, getHomePage);
 
-router.route('/create').post(auth, authTo('admin', 'seller'), createProduct);
+router.route('/').post(auth, authTo('admin', 'seller'), createProduct);
 
 router.route('/review').get(getReviews).patch(auth, createReview);
 router.route('/review/delete').patch(auth, deleteReview);
