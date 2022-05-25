@@ -251,27 +251,46 @@ exports.getHomePage = catchAsync(async (req, res, next) => {
     req.query.resPerPage = resPerPage || process.env.RESULTS_PER_PAGE;
   }
 
-  const storeData = async (variable, condition) => {
-    variable = await getData(condition);
+  const storeData = async variable => {
+    variable.value = await getData(variable.condition);
   };
 
-  const daraz = await getData({ seller: darazId });
-  const yayvo = await getData({ seller: yayvoId });
-  const goto = await getData({ seller: gotoId });
-  const iBucket = await getData({ seller: iBucketId });
+  const daraz = { condition: { seller: darazId } };
+  const yayvo = { condition: { seller: yayvoId } };
+  const goto = { condition: { seller: gotoId } };
+  const iBucket = { condition: { seller: iBucketId } };
 
-  const accessories = await getData({ ['category.search']: 'Accessories' });
-  const books = await getData({ ['category.search']: 'Books' });
-  const cameras = await getData({ ['category.search']: 'Cameras' });
-  const clothes = await getData({ ['category.search']: 'Clothes' });
-  const electronics = await getData({ ['category.search']: 'Electronics' });
-  const food = await getData({ ['category.search']: 'Food' });
-  const headphones = await getData({ ['category.search']: 'Headphones' });
-  const home = await getData({ ['category.search']: 'Home' });
-  const laptops = await getData({ ['category.search']: 'Laptops' });
-  const outdoor = await getData({ ['category.search']: 'Outdoor' });
-  const smartPhones = await getData({ ['category.search']: 'Smart Phones' });
-  const sports = await getData({ ['category.search']: 'Sports' });
+  const accessories = { condition: { ['category.search']: 'Accessories' } };
+  const books = { condition: { ['category.search']: 'Books' } };
+  const cameras = { condition: { ['category.search']: 'Cameras' } };
+  const clothes = { condition: { ['category.search']: 'Clothes' } };
+  const electronics = { condition: { ['category.search']: 'Electronics' } };
+  const food = { condition: { ['category.search']: 'Food' } };
+  const headphones = { condition: { ['category.search']: 'Headphones' } };
+  const home = { condition: { ['category.search']: 'Home' } };
+  const laptops = { condition: { ['category.search']: 'Laptops' } };
+  const outdoor = { condition: { ['category.search']: 'Outdoor' } };
+  const smartPhones = { condition: { ['category.search']: 'Smart Phones' } };
+  const sports = { condition: { ['category.search']: 'Sports' } };
+
+  await Promise.all([
+    storeData(daraz),
+    storeData(yayvo),
+    storeData(goto),
+    storeData(iBucket),
+    storeData(accessories),
+    storeData(books),
+    storeData(cameras),
+    storeData(clothes),
+    storeData(electronics),
+    storeData(food),
+    storeData(headphones),
+    storeData(home),
+    storeData(laptops),
+    storeData(outdoor),
+    storeData(smartPhones),
+    storeData(sports),
+  ]);
 
   res.status(200).json({
     data: {
