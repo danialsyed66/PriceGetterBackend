@@ -6,17 +6,22 @@ const AppError = require('../utils/appError');
 
 const processItem = async (id, quantity) => {
   const product = await Product.findById(id);
-  product.stock -= quantity;
+
+  const stock = +product.stock;
+  product.stock = stock - quantity;
 
   await product.save({ validateBeforeSave: false });
 };
 
 exports.getOrders = factory.getAll(Order, { getTotalDocs: true });
+
 exports.getOrder = factory.getOne(Order, {
   path: 'user',
   select: 'name email',
 });
+
 exports.deleteOrder = factory.deleteOne(Order);
+
 exports.createOrder = catchAsync(async (req, res, next) => {
   const {
     orderItems,
@@ -29,6 +34,7 @@ exports.createOrder = catchAsync(async (req, res, next) => {
   } = req.body;
 
   const order = await Order.create({
+    seller: orderItems[0].seller,
     orderItems: orderItems.map(item => ({
       ...item,
       image: item.images?.length && item.images[0].url,
@@ -45,6 +51,10 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     user: req.user._id,
   });
 
+  order.orderItems.forEach(
+    async item => await processItem(item.product, item.quantity)
+  );
+
   res.status(201).json({
     status: 'success',
     data: {
@@ -59,12 +69,8 @@ exports.updateOrder = catchAsync(async (req, res, next) => {
   if (order.orderStatus === 'Delivered')
     return next(new AppError('Order has already been processed.', 400));
 
-  order.orderItems.forEach(
-    async item => await processItem(item.product, item.quantity)
-  );
-
   order.deliveredAt = Date.now();
-  order.orderStatus = req.body.orderStatus;
+  order.orderStatus = 'Delivered';
 
   await order.save();
 

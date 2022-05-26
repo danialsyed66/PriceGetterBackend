@@ -15,13 +15,13 @@ router.route('/my').get(auth, myOrders);
 
 router
   .route('/')
-  .get(auth, authTo('admin', 'sellers'), getOrders)
+  .get(auth, authTo('admin', 'seller'), getOrders)
   .post(auth, createOrder);
 
 router
   .route('/:id')
   .get(auth, getOrder)
-  .patch(auth, updateOrder)
-  .delete(auth, deleteOrder);
+  .patch(auth, authTo('admin', 'seller'), updateOrder)
+  .delete(auth, authTo('admin', 'seller'), deleteOrder);
 
 module.exports = router;

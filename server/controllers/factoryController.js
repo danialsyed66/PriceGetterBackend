@@ -119,20 +119,31 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
       ['category.search']: category?.trim(),
     }));
 
-    const orCondition = {
+    const sellerCondition = {
       $or: [
         ...(sellers ? [...sellers] : []),
-        ...(categories ? [...categories] : []),
         ...(getPriceGetter ? [{ pricegetter: true }] : []),
       ],
     };
+    const categoryCondition = {
+      $or: [...(categories ? [...categories] : [])],
+    };
 
-    const conditionExists = sellerQuery || categoryQuery;
+    const condition =
+      sellerQuery && categoryQuery
+        ? { $and: [sellerCondition, categoryCondition] }
+        : {
+            ...(sellerQuery && { ...sellerCondition }),
+            ...(categoryQuery && { ...categoryCondition }),
+          };
 
     const where = options.where || {
-      ...(price.$gte && { price }),
-      ...(onSale && { discount }),
-      ...(conditionExists && orCondition),
+      $and: [
+        { ...(price.$gte && { price }) },
+        { ...(onSale && { discount }) },
+        { ...(sellerQuery && { ...sellerCondition }) },
+        { ...(categoryQuery && { ...categoryCondition }) },
+      ],
     };
 
     // Creating a query

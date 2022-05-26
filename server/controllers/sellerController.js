@@ -2,8 +2,10 @@ const cloudinary = require('cloudinary');
 
 const Seller = require('../models/seller');
 const Product = require('../models/product');
+const Order = require('../models/order');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const ApiFeatures = require('../utils/apiFeatures');
 
 exports.createSeller = catchAsync(async (req, res, next) => {
   const { name, url, logo, user } = req.body;
@@ -78,8 +80,6 @@ exports.sellerSeeder = catchAsync(async (req, res, next) => {
 exports.getSellerProducts = catchAsync(async (req, res, next) => {
   const { user } = req;
 
-  const resPerPage = req.query.resPerPage || process.env.RESULTS_PER_PAGE;
-
   const seller = await Seller.findOne({ user: user._id });
 
   if (!seller)
@@ -89,36 +89,47 @@ exports.getSellerProducts = catchAsync(async (req, res, next) => {
 
   // Creating a query
   let apiFeatures = new ApiFeatures(
-    Model.find(where),
+    Product.find(where),
     req.query,
-    isProduct && 'images name price rating stock discount'
+    'images name price rating stock discount'
   )
-    .search()
     .sort()
-    .limitFields()
-    .paginate(resPerPage);
+    .limitFields();
 
   // Calling the query
   const docs = await apiFeatures.query;
 
-  let numOfDocs = await new ApiFeatures(Model.find(where), req.query)
-    .search()
-    .sort()
-    .limitFields()
-    .query.countDocuments();
+  res.status(200).json({
+    status: 'success',
+    data: {
+      results: docs.length,
+      products: docs,
+    },
+  });
+});
 
-  const data = {
-    numOfDocs: numOfDocs,
-    resPerPage: +resPerPage,
-    products: docs,
-  };
+exports.getSellerOrders = catchAsync(async (req, res, next) => {
+  const { user } = req;
 
-  if (!sendRes) return data;
+  const seller = await Seller.findOne({ user: user._id });
+
+  if (!seller)
+    return next(new AppError('You are not registered as a seller.', 400));
+
+  const where = { seller: seller._id };
+
+  // Creating a query
+  let apiFeatures = new ApiFeatures(Order.find(where), req.query).sort();
+
+  // Calling the query
+  const docs = await apiFeatures.query;
 
   res.status(200).json({
     status: 'success',
-    results: docs.length,
-    data,
+    data: {
+      results: docs.length,
+      orders: docs,
+    },
   });
 });
 
@@ -137,14 +148,123 @@ exports.processProduct = catchAsync(async (req, res, next) => {
 
   let imageLinks = [];
 
-  images.forEach(async image => {
-    const result = cloudinary.v2.uploader.upload(image, { folder: 'products' });
+  if (images)
+    images?.forEach(async image => {
+      const result = await cloudinary.v2.uploader.upload(image, {
+        folder: 'products',
+      });
 
-    imageLinks.push({ url: result.secure_url, public_id: result.public_id });
-  });
+      imageLinks.push({ url: result.secure_url, public_id: result.public_id });
+    });
 
   req.body.images = imageLinks;
   req.body.seller = seller._id;
+  req.body.category = { search: req.body.category };
+  req.body.pricegetter = true;
 
   next();
+});
+
+exports.processProductUpdate = catchAsync(async (req, res, next) => {
+  const { user } = req;
+
+  const seller = await Seller.findOne({ user: user._id });
+
+  if (!seller)
+    return next(new AppError('You are not registered as a seller.', 400));
+
+  const product = await Product.findOne({
+    $and: [{ _id: req.params.id }, { seller: seller._id }],
+  });
+
+  if (!product)
+    return next(
+      new AppError('You donont have any product with given id.', 404)
+    );
+
+  let images = [];
+
+  if (typeof req.body.images === 'string') images = [req.body.images];
+  else images = req.body.images;
+
+  if (images)
+    images?.forEach(async image => {
+      const result = await cloudinary.v2.uploader.upload(image, {
+        folder: 'products',
+      });
+
+      product.images.push({
+        url: result.secure_url,
+        public_id: result.public_id,
+      });
+    });
+
+  if (req.body.price < product.price) {
+    req.body.oldPrice = product.price;
+    req.body.discount =
+      ((req.body.oldPrice - req.body.price) * 100) / req.body.oldPrice;
+  } else {
+    if (req.body.price > product.oldPrice) {
+      product.oldPrice = 0;
+      req.body.discount = 0;
+    } else {
+      console.log(1);
+      req.body.discount =
+        ((product.oldPrice - req.body.price) * 100) / product.oldPrice;
+    }
+  }
+
+  const category = { search: req.body.category };
+
+  req.body.images = undefined;
+  req.body.category = category;
+
+  await product.save();
+
+  next();
+});
+
+exports.dashboard = catchAsync(async (req, res, next) => {
+  const { user } = req;
+
+  const seller = await Seller.findOne({ user: user._id });
+
+  if (!seller)
+    return next(new AppError('You are not registered as a seller.', 400));
+
+  const getData = async query => await query;
+
+  const results = await Promise.all([
+    getData(Product.find({ seller: seller._id }).countDocuments()),
+    getData(
+      Product.find({
+        $and: [{ seller: seller._id }, { stock: 0 }],
+      }).countDocuments()
+    ),
+    getData(Order.find({ seller: seller._id }).countDocuments()),
+    getData(
+      Order.aggregate([
+        { $match: { seller: seller._id } },
+        {
+          $group: {
+            _id: undefined,
+            total: { $sum: '$totalPrice' },
+            item: { $sum: '$itemsPrice' },
+            tax: { $sum: '$taxPrice' },
+            shipping: { $sum: '$shippingPrice' },
+          },
+        },
+      ])
+    ),
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      productsCount: results[0],
+      outOfStockProducts: results[1],
+      ordersCount: results[2],
+      revenue: results[3][0],
+    },
+  });
 });

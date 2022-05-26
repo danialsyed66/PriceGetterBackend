@@ -55,6 +55,11 @@ const Schema = new mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'Seller',
+    },
 
     itemsPrice: {
       type: Number,
