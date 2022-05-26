@@ -208,9 +208,9 @@ exports.processProductUpdate = catchAsync(async (req, res, next) => {
       product.oldPrice = 0;
       req.body.discount = 0;
     } else {
-      console.log(1);
-      req.body.discount =
-        ((product.oldPrice - req.body.price) * 100) / product.oldPrice;
+      if (req.body.price !== product.oldPrice)
+        req.body.discount =
+          ((product.oldPrice - req.body.price) * 100) / product.oldPrice;
     }
   }
 
