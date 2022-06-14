@@ -12,6 +12,7 @@ const cookieSession = require('cookie-session');
 
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
+const { routesInfo } = require('./controllers/routesController');
 const userRouter = require('./routes/userRouter');
 const adminRouter = require('./routes/adminRouter');
 const authRouter = require('./routes/authRouter');
@@ -56,6 +57,8 @@ app.use(
 // Social Login
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.get('/', routesInfo);
 
 app.use('/api/v1', userRouter);
 app.use('/api/v1/admin', adminRouter);

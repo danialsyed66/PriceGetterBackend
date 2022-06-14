@@ -150,7 +150,7 @@ exports.getAll = (Model, options = {}, sendRes = true) =>
     let apiFeatures = new ApiFeatures(
       Model.find(where),
       req.query,
-      isProduct && 'images name price rating stock seller discount'
+      isProduct && 'images name price rating stock seller discount url'
     )
       .search()
       .sort()
