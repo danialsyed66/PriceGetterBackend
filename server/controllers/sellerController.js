@@ -148,13 +148,22 @@ exports.processProduct = catchAsync(async (req, res, next) => {
 
   let imageLinks = [];
 
-  if (images)
-    images?.forEach(async image => {
-      const result = await cloudinary.v2.uploader.upload(image, {
-        folder: 'products',
-      });
+  for (let index = 0; index < images.length; index++) {
+    const image = images[index];
 
-      imageLinks.push({ url: result.secure_url, public_id: result.public_id });
+    const result = await cloudinary.v2.uploader.upload(image, {
+      folder: 'products',
+    });
+
+    imageLinks.push({
+      url: result.secure_url,
+      public_id: result.public_id,
+    });
+  }
+
+  if (imageLinks.length === 0)
+    imageLinks.push({
+      url: 'https://res.cloudinary.com/dlwaao9wl/image/upload/v1655496208/products/default_product_wiulgz.png',
     });
 
   req.body.images = imageLinks;

@@ -12,9 +12,7 @@ exports.register = catchAsync(async (req, res, next) => {
   const { name, email, password, avatar, role } = req.body;
 
   let roles = 'user';
-  if (role) {
-    roles = 'seller-pending';
-  }
+  if (role) roles = 'seller-pending';
 
   let result;
   if (avatar)
@@ -33,7 +31,9 @@ exports.register = catchAsync(async (req, res, next) => {
           public_id: result.public_id,
           url: result.secure_url,
         }
-      : undefined,
+      : {
+          url: 'https://res.cloudinary.com/dlwaao9wl/image/upload/v1655495372/avatars/default_avatar_a47u26.jpg',
+        },
     role: roles,
   });
 
