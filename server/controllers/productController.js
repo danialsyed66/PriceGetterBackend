@@ -27,12 +27,31 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   let idsFound = [doc._id];
 
-  const limitFields = 'images name price rating stock seller';
+  const limitFields = 'images name price rating stock seller url';
 
   const populateOptions = {
     path: 'seller',
     select: '-__v -createdAt -updatedAt',
   };
+
+  const same = await Product.find(
+    {
+      $and: [
+        {
+          name: {
+            $regex: doc.name.replace(/^(.{15}[^\s]*).*/, '$1'),
+            $options: 'i',
+          },
+        },
+        { _id: { $nin: idsFound } },
+      ],
+    },
+    limitFields
+  )
+    .limit(6)
+    .populate(populateOptions);
+
+  idsFound = [...idsFound, ...same.map(prod => prod._id)];
 
   const similar1 = await Product.find(
     {
@@ -109,6 +128,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       product: doc,
+      same: { results: same.length, same },
       similar: { results: similar.length, similar },
     },
   });
