@@ -27,7 +27,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 
   let idsFound = [doc._id];
 
-  const limitFields = 'images name price rating stock seller url';
+  const limitFields = 'images name price oldPrice rating stock seller url';
 
   const populateOptions = {
     path: 'seller',
