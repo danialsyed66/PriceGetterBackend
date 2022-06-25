@@ -120,7 +120,13 @@ exports.authCheck = catchAsync(async (req, res, next) => {
 
   if (!token) return next();
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  } catch (err) {
+    return next();
+  }
 
   const currentUser = await User.findById(decoded.id);
 
@@ -148,21 +154,24 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   if (!user) return next(new AppError('User with email does not exist.', 404));
 
-  const resetToken = user.forgotPasswordToken();
+  const otp = user.forgotPasswordToken();
 
   await user.save({ validateBeforeSave: false });
 
   const options = {
     email,
     subject: 'Password recovery email',
-    message: `Have you forgoten your Natours password?
+    message: `Have you forgotten your PriceGetter.pk password?
     
+    Your 6 digit OTP is ${[].map.call(otp, n => n + ' ').join('')}
+
     Here is the link to reset your password:
     
-    ${req.protocol}://${req.get('host')}/api/v1/resetPassword/${resetToken}
+    https://price-getter.netlify.app/otpverify
     
     If you have not requested to reset password please ignore this email.`,
   };
+  // ${req.protocol}://${req.get('host')}/api/v1/resetPassword/${resetToken}
 
   try {
     await sendEmail(options);
@@ -181,10 +190,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = catchAsync(async (req, res, next) => {
+exports.verifyOTP = catchAsync(async (req, res, next) => {
   const hashedToken = crypto
     .createHash('sha256')
-    .update(req.params.resetToken)
+    .update(req.params.otp)
     .digest('hex');
 
   const user = await User.findOne({
@@ -194,7 +203,28 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   if (!user)
     return next(
-      new AppError('Token is not valid or has expired. Please try again.', 400)
+      new AppError('OTP is not valid or has expired. Please try again.', 400)
+    );
+
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.otp)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetTimeout: { $gt: Date.now() },
+  });
+
+  if (!user)
+    return next(
+      new AppError('OTP is not valid or has expired. Please try again.', 400)
     );
 
   const { password, confirmPassword } = req.body;

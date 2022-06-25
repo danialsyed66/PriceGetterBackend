@@ -7,6 +7,7 @@ const {
   updateOrder,
   deleteOrder,
   myOrders,
+  requestRefund,
 } = require('../controllers/orderController');
 
 const { auth, authTo } = require('../controllers/authController');
@@ -23,5 +24,7 @@ router
   .get(auth, getOrder)
   .patch(auth, authTo('admin', 'seller'), updateOrder)
   .delete(auth, authTo('admin', 'seller'), deleteOrder);
+
+router.route('/requestRefund/:orderId').patch(auth, requestRefund);
 
 module.exports = router;

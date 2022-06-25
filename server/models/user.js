@@ -74,16 +74,17 @@ Schema.methods.comparePasswords = function (givenPassword) {
 };
 
 Schema.methods.forgotPasswordToken = function () {
-  const token = crypto.randomBytes(20).toString('hex');
+  // const token = crypto.randomBytes(20).toString('hex');
+  const otp = crypto.randomInt(999999);
 
   this.passwordResetToken = crypto
     .createHash('sha256')
-    .update(token)
+    .update(`${otp}`)
     .digest('hex');
 
   this.passwordResetTimeout = new Date(Date.now() + 30 * 60 * 1000);
 
-  return token;
+  return otp;
 };
 
 const model = mongoose.model('User', Schema);

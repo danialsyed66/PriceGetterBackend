@@ -8,6 +8,7 @@ const {
   resetPassword,
   changePassword,
   auth,
+  verifyOTP,
 } = require('../controllers/authController');
 
 const {
@@ -21,7 +22,8 @@ router.route('/register').post(register);
 router.route('/login').post(login);
 router.route('/logout').post(logout);
 router.route('/forgotPassword').post(forgotPassword);
-router.route('/resetPassword/:resetToken').put(resetPassword);
+router.route('/verifyOtp/:otp').get(verifyOTP);
+router.route('/resetPassword/:otp').patch(resetPassword);
 
 // User Routes
 router.route('/changePassword').patch(auth, changePassword);

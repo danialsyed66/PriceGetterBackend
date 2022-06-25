@@ -89,3 +89,73 @@ exports.myOrders = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+const lessThan24Hrs = date => {
+  if (!date) return true;
+
+  const then = new Date(date);
+  const now = new Date();
+
+  const msBetweenDates = Math.abs(then.getTime() - now.getTime());
+
+  // 👇️ convert ms to hours                  min  sec   ms
+  const hoursBetweenDates = msBetweenDates / (60 * 60 * 1000);
+
+  if (hoursBetweenDates < 24) return true;
+
+  return false;
+};
+
+exports.requestRefund = catchAsync(async (req, res, next) => {
+  const { orderId } = req.params;
+  const { message } = req.body;
+
+  if (!message) return next(new AppError('Refund message is required.', 400));
+  if (!orderId) return next(new AppError('Order Id is required.', 400));
+
+  const order = await Order.findById(orderId);
+
+  if (!order)
+    return next(new AppError('Order with given id doesnot exist.', 404));
+
+  if (order.user != req.user.id)
+    return next(new AppError('This is not your order.', 400));
+
+  const {
+    refund: { status: refundStatus },
+    deliveredAt,
+  } = order;
+
+  if (refundStatus === 'declined')
+    return next(
+      new AppError('Your refund request has already been declined.', 400)
+    );
+
+  if (refundStatus === 'accepted')
+    return next(new AppError('Your payment has already been refunded.', 400));
+
+  if (refundStatus === 'requested')
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        message: 'Your refund is already in progress.',
+      },
+    });
+
+  if (!lessThan24Hrs(deliveredAt))
+    return next(
+      new AppError('You cannot request refund after 24 hours of delivery.', 400)
+    );
+
+  order.refund.status = 'requested';
+  order.refund.message = message;
+
+  await order.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      order,
+    },
+  });
+});

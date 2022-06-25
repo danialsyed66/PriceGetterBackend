@@ -102,6 +102,18 @@ const Schema = new mongoose.Schema(
     deliveredAt: {
       type: Date,
     },
+
+    refund: {
+      status: {
+        type: String,
+        default: 'none',
+        enum: ['none', 'requested', 'accepted', 'declined'],
+        message: `Please select a valid status from none, requested, accepted, declined.`,
+      },
+      message: {
+        type: String,
+      },
+    },
   },
   { timestamps: true }
 );
