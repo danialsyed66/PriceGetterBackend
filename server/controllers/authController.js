@@ -49,8 +49,6 @@ exports.register = catchAsync(async (req, res, next) => {
     role: roles,
   });
 
-  console.log(user);
-
   sendToken(user, res, 201);
 });
 
