@@ -25,12 +25,12 @@ const Schema = new mongoose.Schema(
       select: false,
     },
     avatar: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
+      public_id: String,
+      url: String,
+    },
+    verification: {
+      public_id: String,
+      url: String,
     },
     favourites: [
       {

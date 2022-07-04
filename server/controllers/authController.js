@@ -9,17 +9,23 @@ const sendToken = require('../utils/sendToken');
 const sendEmail = require('../utils/sendEmail');
 
 exports.register = catchAsync(async (req, res, next) => {
-  const { name, email, password, avatar, role } = req.body;
+  const { name, email, password, avatar, role, verification } = req.body;
 
   let roles = 'user';
   if (role) roles = 'seller-pending';
 
-  let result;
+  let avatarResult;
   if (avatar)
-    result = await cloudinary.v2.uploader.upload(avatar, {
+    avatarResult = await cloudinary.v2.uploader.upload(avatar, {
       folder: 'avatars',
       width: 150,
       crop: 'scale',
+    });
+
+  let verificationResult;
+  if (verification)
+    verificationResult = await cloudinary.v2.uploader.upload(verification, {
+      folder: 'verifications',
     });
 
   const user = await User.create({
@@ -28,14 +34,22 @@ exports.register = catchAsync(async (req, res, next) => {
     password,
     avatar: avatar
       ? {
-          public_id: result.public_id,
-          url: result.secure_url,
+          public_id: avatarResult.public_id,
+          url: avatarResult.secure_url,
         }
       : {
           url: 'https://res.cloudinary.com/dlwaao9wl/image/upload/v1655495372/avatars/default_avatar_a47u26.jpg',
         },
+    verification: verification
+      ? {
+          public_id: verificationResult.public_id,
+          url: verificationResult.secure_url,
+        }
+      : undefined,
     role: roles,
   });
+
+  console.log(user);
 
   sendToken(user, res, 201);
 });
