@@ -206,7 +206,9 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
   const noOfReviews = reviews.length;
 
   const rating =
-    reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+    reviews.length > 0
+      ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length
+      : 0;
 
   product.reviews = reviews;
   product.noOfReviews = noOfReviews;
