@@ -2,7 +2,7 @@ const User = require('../models/user');
 const Product = require('../models/product');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const factory = require('./factoryController');
+const cloudinary = require('cloudinary');
 
 exports.getUserProfile = (req, res, next) => {
   res.status(200).json({
@@ -28,12 +28,35 @@ exports.getUserFavourites = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUserProfile = catchAsync(async (req, res, next) => {
+  const { _id, avatar } = req.user;
+  const { name, email, avatar: avatarBase } = req.body;
+
+  const exists = await User.findOne({
+    $and: [{ email }, { _id: { $ne: _id } }],
+  });
+
+  if (exists) return next(new AppError('This email is already taken', 400));
+
+  let avatarResult;
+  if (avatarBase)
+    avatarResult = await cloudinary.v2.uploader.upload(avatarBase, {
+      folder: 'avatars',
+      width: 150,
+      crop: 'scale',
+    });
+
   const newData = {
-    name: req.body.name,
-    email: req.body.email,
+    name,
+    email,
+    avatar: avatarBase
+      ? {
+          public_id: avatarResult.public_id,
+          url: avatarResult.secure_url,
+        }
+      : avatar,
   };
 
-  req.user = await User.getByIdAndUpdate(newData, {
+  req.user = await User.findByIdAndUpdate(_id, newData, {
     new: true,
     runValidators: true,
     useFindAndModify: false,

@@ -137,6 +137,7 @@ exports.authCheck = catchAsync(async (req, res, next) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
   } catch (err) {
+    console.log(err);
     return next();
   }
 
