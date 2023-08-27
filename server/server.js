@@ -50,6 +50,10 @@ mongoose
     //   await prod.save({ validateBeforeSave: false });
     // }
     // console.log('Done');
+  })
+  .catch(err => {
+    console.log('🚀 ~ file: server.js:54 ~ err:', err);
+    throw err;
   });
 
 process.on('unhandledRejection', err => {
